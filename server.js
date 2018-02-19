@@ -35,26 +35,48 @@ if (mongoURL == null && process.env.DATABASE_SERVICE_NAME) {
 var db = null,
     dbDetails = new Object();
 
-var initDb = function(callback) {
-  if (mongoURL == null) return;
+var initDb = function (callback) {
+    mongoURL = "mongodb://localhost:27017/vodadb";
+    if (mongoURL == null) return;
 
-  var mongodb = require('mongodb');
-  if (mongodb == null) return;
+    var mongodb = require('mongodb');
+    if (mongodb == null) return;
 
-  mongodb.connect(mongoURL, function(err, conn) {
-    if (err) {
-      callback(err);
-      return;
-    }
+    mongodb.connect(mongoURL, function(err, conn) {
+        if (err) {
+        callback(err);
+        return;
+        }
 
-    db = conn;
-    dbDetails.databaseName = db.databaseName;
-    dbDetails.url = mongoURLLabel;
-    dbDetails.type = 'MongoDB';
+        db = conn;
+        dbDetails.databaseName = db.databaseName;
+        dbDetails.url = mongoURLLabel;
+        dbDetails.type = 'MongoDB';
 
-    console.log('Connected to MongoDB at: %s', mongoURL);
-  });
+        console.log('Connected to MongoDB at: %s', mongoURL);
+    });
 };
+
+app.get('/user/:id', function (request, response) {
+    var col = db.collection('users');
+    var mata = "masa etc";
+    col.find({}).toArray(function (err, docs)
+    {
+        response.send('user' + request.params.id + docs[0].username +  ' ' +  mata);
+    });
+});
+
+app.post('/user/authorize', function (req, res) {
+    var col = db.collection('users');
+
+    var username = '';
+    var password = '';
+    var scope = '';
+
+    var token = {token: 'ad132dsad1432gfdbcfd='};
+
+    res.send(token);
+});
 
 app.get('/', function (req, res) {
   // try to initialize the db on every request if it's not already
