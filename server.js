@@ -36,7 +36,7 @@ var db = null,
     dbDetails = new Object();
 
 var initDb = function (callback) {
-    mongoURL = "mongodb://localhost:27017/vodadb";
+    //mongoURL = "mongodb://localhost:27017/vodadb";
     if (mongoURL == null) return;
 
     var mongodb = require('mongodb');
