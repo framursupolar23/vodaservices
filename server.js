@@ -59,10 +59,10 @@ var initDb = function (callback) {
 
 app.get('/user/:id', function (request, response) {
     var col = db.collection('users');
-    var mata = "masa etc";
+    var mata = "mata etc";
     col.find({}).toArray(function (err, docs)
     {
-        response.send('user' + request.params.id + docs[0].username +  ' ' +  mata);
+        response.send('user' + request.params.id + ' ' +  mata);
     });
 });
 
