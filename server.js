@@ -2,7 +2,15 @@
 var express = require('express'),
     app     = express(),
     morgan  = require('morgan');
-    
+var bodyParser = require('body-parser');
+var sha256 = require('sha256');
+
+app.use(bodyParser.json())
+
+app.use(bodyParser.urlencoded({
+    extended: true
+}));
+
 Object.assign=require('object-assign')
 
 app.engine('html', require('ejs').renderFile);
@@ -36,7 +44,7 @@ var db = null,
     dbDetails = new Object();
 
 var initDb = function (callback) {
-    //mongoURL = "mongodb://localhost:27017/vodadb";
+    mongoURL = "mongodb://localhost:27017/vodadb";
     if (mongoURL == null) return;
 
     var mongodb = require('mongodb');
@@ -58,22 +66,25 @@ var initDb = function (callback) {
 };
 
 app.get('/user/:id', function (request, response) {
+    var username = request.params.id;
     var col = db.collection('users');
-    var mata = "mata etc";
-    col.find({}).toArray(function (err, docs)
+
+    col.findOne({username: username}, function (err, user)
     {
-        response.send('user' + request.params.id + ' ' +  mata);
+        response.send('Username ' + username );
     });
 });
 
 app.post('/user/authorize', function (req, res) {
     var col = db.collection('users');
 
-    var username = '';
-    var password = '';
-    var scope = '';
+    var username = req.body.username; 
+    var password = req.body.password;
+    var scopes = req.body.scopes;
 
-    var token = {token: 'ad132dsad1432gfdbcfd='};
+    var ups = username + '|' + password + '|' + scopes + '|' + Date.now()
+    var encrypt = sha256(ups);
+    var token = {token: ups + '|' + encrypt};
 
     res.send(token);
 });
