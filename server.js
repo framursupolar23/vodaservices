@@ -3,7 +3,8 @@ var express = require('express'),
     app     = express(),
     morgan  = require('morgan');
 var bodyParser = require('body-parser');
-var sha256 = require('sha256');
+var token = require('./util/token.js')
+
 
 app.use(bodyParser.json())
 
@@ -78,15 +79,23 @@ app.get('/user/:id', function (request, response) {
 app.post('/user/authorize', function (req, res) {
     var col = db.collection('users');
 
-    var username = req.body.username; 
+    var username = req.body.username;
     var password = req.body.password;
     var scopes = req.body.scopes;
 
-    var ups = username + '|' + password + '|' + scopes + '|' + Date.now()
-    var encrypt = sha256(ups);
-    var token = {token: ups + '|' + encrypt};
-
-    res.send(token);
+    col.findOne({ username: username, password: password }, function (err, user) {
+        if (!user) {
+            col.insert({ username: username, password: password }, function (err, doc) {
+                var tok = token.getToken(username, scopes);
+                res.send(tok);
+            });
+        }
+        else
+        {
+            var tok = token.getToken(username, scopes);
+            res.send(tok);
+        }
+    });
 });
 
 app.get('/', function (req, res) {
